@@ -19,7 +19,7 @@ export default async function (req) {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                contents: [{ parts: [{ text: `Social media caption for ${platform}. Topic: ${topic}. Tone: ${tone}. Language: English.` }] }]
+                contents: [{ parts: [{ text: `Social media caption for ${platform}. Topic: ${topic}. Tone: ${tone}. Language: Automatically detect the language of the topic provided and reply in the same language. Include relevant emojis and a mix of local and English viral hashtags.` }] }]
             })
         });
 
