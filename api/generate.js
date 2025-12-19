@@ -13,27 +13,36 @@ export default async function (req) {
 
         if (!apiKey) {
             return new Response(JSON.stringify({ 
-                result: "Error: API Key is missing in Vercel settings." 
+                result: "Error: GEMINI_API_KEY is missing in Vercel." 
             }), { status: 500 });
         }
 
-        const prompt = `Write a viral social media caption for ${platform}.
-        Topic: "${topic}"
-        Tone: ${tone}
-        Language: English (Engaging & Trendy).
-        Include relevant emojis and 5-10 hashtags at the end. Do not use quotes.`;
+        // Menggunakan URL v1 yang lebih stabil
+        const apiUrl = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
 
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+        const response = await fetch(apiUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                contents: [{ parts: [{ text: prompt }] }]
+                contents: [{
+                    parts: [{
+                        text: `Write a viral social media caption for ${platform}. 
+                        Topic: "${topic}". 
+                        Tone: ${tone}. 
+                        Language: English. 
+                        Include 5-10 hashtags and emojis.`
+                    }]
+                }]
             })
         });
 
         const data = await response.json();
-        if (data.error) throw new Error(data.error.message);
+        
+        if (data.error) {
+            throw new Error(data.error.message);
+        }
 
+        // Mengambil hasil teks dari struktur data Google
         const resultText = data.candidates[0].content.parts[0].text;
 
         return new Response(JSON.stringify({ result: resultText }), {
@@ -41,7 +50,7 @@ export default async function (req) {
         });
 
     } catch (error) {
-        return new Response(JSON.stringify({ result: "Error: " + error.message }), {
+        return new Response(JSON.stringify({ result: "AI Error: " + error.message }), {
             status: 500,
             headers: { 'Content-Type': 'application/json' }
         });
