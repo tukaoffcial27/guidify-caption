@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pricing - Guidify AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'], display: ['Orbitron', 'sans-serif'] },
+                    colors: { royal: { dark: '#0a0118', panel: '#1a0b2e', primary: '#7c3aed', accent: '#06b6d4' } }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #0a0118; background-image: radial-gradient(circle at 10% 20%, rgba(124, 58, 237, 0.2) 0%, transparent 40%); }
+        .glass-panel { background: rgba(26, 11, 46, 0.7); backdrop-filter: blur(20px); border: 1px solid rgba(124, 58, 237, 0.3); }
+        .btn-premium { background: linear-gradient(90deg, #7c3aed 0%, #06b6d4 100%); }
+    </style>
+</head>
+<body class="text-slate-300 antialiased min-h-screen flex flex-col items-center pb-20">
+
+    <nav class="w-full max-w-5xl px-6 py-6 flex justify-between items-center relative z-20">
+        <a href="index.html" class="flex items-center gap-2">
+            <i class="ph-fill ph-sparkle text-royal-accent text-2xl"></i>
+            <span class="font-display font-bold text-white tracking-wider">GUIDIFY</span>
+        </a>
+    </nav>
+
+    <main class="w-full max-w-4xl px-4 py-10 text-center">
+        <h2 class="text-xs font-bold text-royal-accent tracking-[0.3em] uppercase mb-4">Pricing Plans</h2>
+        <h1 class="text-4xl font-bold text-white font-display mb-10">Choose Your Viral Power</h1>
+
+        <div class="grid md:grid-cols-2 gap-8 max-w-2xl mx-auto">
+            
+            <div class="glass-panel rounded-3xl p-8 flex flex-col items-start text-left border-white/10">
+                <h3 class="text-xl font-bold text-white mb-2">Starter</h3>
+                <p class="text-sm text-slate-400 mb-6">For casual creators</p>
+                <div class="text-4xl font-bold text-white mb-6">$0 <span class="text-sm text-slate-500 font-normal">/month</span></div>
+                
+                <ul class="space-y-4 mb-8 flex-1">
+                    <li class="flex items-center gap-3 text-sm"><i class="ph-bold ph-check text-royal-accent"></i> 5 AI Captions / day</li>
+                    <li class="flex items-center gap-3 text-sm text-slate-500"><i class="ph-bold ph-x text-red-400"></i> No Magic Photo Scan</li>
+                    <li class="flex items-center gap-3 text-sm text-slate-500"><i class="ph-bold ph-x text-red-400"></i> Standard Support</li>
+                </ul>
+                
+                <a href="index.html" class="w-full py-3 rounded-xl border border-white/20 text-center font-bold text-sm hover:bg-white/5 transition">Get Started</a>
+            </div>
+
+            <div class="glass-panel rounded-3xl p-8 flex flex-col items-start text-left border-royal-primary relative overflow-hidden">
+                <div class="absolute top-4 right-4 bg-royal-accent text-royal-dark text-[10px] font-bold px-2 py-1 rounded">MOST POPULAR</div>
+                <h3 class="text-xl font-bold text-white mb-2">Viral Pass</h3>
+                <p class="text-sm text-slate-400 mb-6">For serious influencers</p>
+                <div class="text-4xl font-bold text-white mb-6">$7 <span class="text-sm text-slate-500 font-normal">/month</span></div>
+                
+                <ul class="space-y-4 mb-8 flex-1">
+                    <li class="flex items-center gap-3 text-sm"><i class="ph-bold ph-check text-royal-accent"></i> Unlimited AI Captions</li>
+                    <li class="flex items-center gap-3 text-sm"><i class="ph-bold ph-check text-royal-accent"></i> Unlimited Magic Photo Scan</li>
+                    <li class="flex items-center gap-3 text-sm"><i class="ph-bold ph-check text-royal-accent"></i> AI Hashtag Strategy</li>
+                    <li class="flex items-center gap-3 text-sm"><i class="ph-bold ph-check text-royal-accent"></i> Priority Support</li>
+                </ul>
+                
+                <button class="btn-premium w-full py-3 rounded-xl text-white font-bold text-sm shadow-lg shadow-royal-primary/30 hover:scale-105 transition">Upgrade Now</button>
+            </div>
+
+        </div>
+    </main>
+</body>
+</html>
