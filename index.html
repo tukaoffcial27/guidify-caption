@@ -91,7 +91,9 @@
         </div>
         <div class="flex items-center gap-6">
             <a href="pricing.html" class="text-xs font-bold text-slate-400 hover:text-white transition uppercase tracking-widest">Pricing</a>
-            <a href="#" class="px-5 py-2 rounded-full border border-royal-primary/50 text-xs font-bold text-white hover:bg-royal-primary/20 transition uppercase tracking-widest">Login</a>
+            <div id="auth-section">
+                <button onclick="login()" id="login-btn" class="px-5 py-2 rounded-full border border-royal-primary/50 text-xs font-bold text-white hover:bg-royal-primary/20 transition uppercase tracking-widest">Login</button>
+            </div>
         </div>
     </nav>
 
@@ -122,7 +124,7 @@
             <div class="mb-6">
                 <button onclick="document.getElementById('image-upload').click()" id="upload-btn" class="w-full py-3 px-4 rounded-xl border border-dashed border-royal-primary/50 bg-royal-primary/5 hover:bg-royal-primary/10 transition flex items-center justify-center gap-3 group">
                     <i class="ph-bold ph-image text-xl text-royal-accent group-hover:scale-110 transition"></i>
-                    <span class="text-xs font-bold text-white tracking-wide">Magic Scan: Create from Photo</span>
+                    <span class="text-xs font-bold text-white tracking-wide uppercase">MAGIC SCAN: CREATE FROM PHOTO</span>
                 </button>
                 <input type="file" id="image-upload" class="hidden" accept="image/*">
                 
@@ -130,7 +132,7 @@
                     <img id="image-preview" src="#" class="w-12 h-12 object-cover rounded-md border border-royal-accent/30">
                     <div class="flex-1">
                         <p class="text-[10px] font-bold text-slate-400 uppercase">Image Attached</p>
-                        <p id="file-name" class="text-[10px] text-royal-accent truncate max-w-[150px]">image.jpg</p>
+                        <p id="file-name" class="text-[10px] text-royal-accent truncate max-w-[150px]"></p>
                     </div>
                     <button onclick="removeImage()" class="text-red-400 p-2 hover:bg-red-400/10 rounded-lg transition">
                         <i class="ph-bold ph-trash"></i>
@@ -166,7 +168,7 @@
                 </div>
             </div>
 
-            <button onclick="generateCaption()" class="btn-neon w-full py-4 rounded-xl text-white font-bold tracking-wide flex items-center justify-center gap-2 hover:scale-[1.02] transition-transform shadow-lg shadow-royal-primary/20">
+            <button onclick="generateCaption()" id="gen-btn" class="btn-neon w-full py-4 rounded-xl text-white font-bold tracking-wide flex items-center justify-center gap-2 hover:scale-[1.02] transition-transform shadow-lg shadow-royal-primary/20">
                 <i class="ph-fill ph-sparkle text-lg"></i>
                 GENERATE CAPTION
             </button>
@@ -189,29 +191,58 @@
     </main>
 
     <div class="fixed bottom-6 left-1/2 transform -translate-x-1/2 glass-panel px-6 py-3 rounded-full flex gap-8 z-50">
-        <a href="#" class="text-royal-accent flex flex-col items-center gap-1">
-            <i class="ph-fill ph-house text-xl"></i>
-        </a>
-        <a href="#" class="text-slate-500 hover:text-white transition flex flex-col items-center gap-1">
-            <i class="ph-bold ph-clock-counter-clockwise text-xl"></i>
-        </a>
-        <a href="#" class="text-slate-500 hover:text-white transition flex flex-col items-center gap-1">
-            <i class="ph-bold ph-user-circle text-xl"></i>
-        </a>
+        <a href="#" class="text-royal-accent flex flex-col items-center gap-1"><i class="ph-fill ph-house text-xl"></i></a>
+        <a href="#" class="text-slate-500 hover:text-white transition flex flex-col items-center gap-1"><i class="ph-bold ph-clock-counter-clockwise text-xl"></i></a>
+        <a href="#" class="text-slate-500 hover:text-white transition flex flex-col items-center gap-1"><i class="ph-bold ph-user-circle text-xl"></i></a>
     </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBW3nULDHkqghoV6BdfC_PX_KKRy4l3B_8",
+            authDomain: "pixofy-app.firebaseapp.com",
+            projectId: "pixofy-app",
+            storageBucket: "pixofy-app.firebasestorage.app",
+            messagingSenderId: "800551015802",
+            appId: "1:800551015802:web:4eee2034ab44f3a71532c3"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const provider = new GoogleAuthProvider();
+
+        window.login = async () => {
+            try {
+                await signInWithPopup(auth, provider);
+            } catch (error) {
+                console.error("Login Error:", error);
+                alert("Login failed.");
+            }
+        };
+
+        window.logout = () => signOut(auth);
+
+        onAuthStateChanged(auth, (user) => {
+            const authSection = document.getElementById('auth-section');
+            if (user) {
+                authSection.innerHTML = `<button onclick="logout()" class="px-4 py-2 text-xs font-bold text-red-400 hover:text-red-300 transition uppercase tracking-widest underline underline-offset-4">Logout</button>`;
+            } else {
+                authSection.innerHTML = `<button onclick="login()" class="px-5 py-2 rounded-full border border-royal-primary/50 text-xs font-bold text-white hover:bg-royal-primary/20 transition uppercase tracking-widest">Login</button>`;
+            }
+        });
+    </script>
 
     <script>
         let selectedImageBase64 = null;
 
-        // Handle Image Upload & Preview
         document.getElementById('image-upload').addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (file) {
                 const reader = new FileReader();
-                reader.onload = function(event) {
+                reader.onload = (event) => {
                     selectedImageBase64 = event.target.result;
-                    
-                    // Show Preview UI
                     document.getElementById('image-preview').src = selectedImageBase64;
                     document.getElementById('file-name').innerText = file.name;
                     document.getElementById('image-preview-container').classList.remove('hidden');
@@ -221,67 +252,45 @@
             }
         });
 
-        // Remove Image Function
         function removeImage() {
             selectedImageBase64 = null;
-            document.getElementById('image-upload').value = "";
             document.getElementById('image-preview-container').classList.add('hidden');
             document.getElementById('upload-btn').classList.remove('hidden');
         }
 
         async function generateCaption() {
-            const btn = document.querySelector('button[onclick="generateCaption()"]');
-            const resultBox = document.getElementById('result-box');
-            const resultText = document.getElementById('caption-result');
-            
+            const btn = document.getElementById('gen-btn');
             const topic = document.getElementById('topic').value;
-            const tone = document.getElementById('tone').value;
-            const platform = document.getElementById('platform').value;
-
-            if(!topic && !selectedImageBase64) { 
-                alert("Please enter a topic or upload a photo!"); 
-                return; 
-            }
+            if(!topic && !selectedImageBase64) return alert("Enter topic or upload photo!");
 
             const originalText = btn.innerHTML;
-            btn.innerHTML = `<i class="ph-bold ph-spinner animate-spin text-lg"></i> ANALYZING...`;
             btn.disabled = true;
-            btn.classList.add('opacity-75');
+            btn.innerHTML = `<i class="ph-bold ph-spinner animate-spin text-lg"></i> ANALYZING...`;
 
             try {
-                const response = await fetch('/api/generate', {
+                const res = await fetch('/api/generate', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ 
                         topic: topic || "Analyze this image", 
-                        tone, 
-                        platform,
+                        tone: document.getElementById('tone').value, 
+                        platform: document.getElementById('platform').value, 
                         image: selectedImageBase64 
                     })
                 });
-                
-                const data = await response.json();
-                
-                if(data.result) {
-                    resultBox.classList.remove('hidden');
-                    resultText.innerText = data.result; 
-                    resultBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                } else {
-                    throw new Error("AI Error");
-                }
-            } catch (error) {
-                alert("Error: " + error.message);
-            } finally {
-                btn.innerHTML = originalText;
-                btn.disabled = false;
-                btn.classList.remove('opacity-75');
+                const data = await res.json();
+                document.getElementById('result-box').classList.remove('hidden');
+                document.getElementById('caption-result').innerText = data.result;
+            } catch (e) { alert("Error!"); }
+            finally { 
+                btn.disabled = false; 
+                btn.innerHTML = originalText; 
             }
         }
 
         function copyToClipboard() {
-            const text = document.getElementById('caption-result').innerText;
-            navigator.clipboard.writeText(text);
-            alert("Caption copied!");
+            navigator.clipboard.writeText(document.getElementById('caption-result').innerText);
+            alert("Copied!");
         }
     </script>
 </body>
