@@ -188,21 +188,41 @@
     </div>
 
     <script>
+        // Variabel untuk menyimpan data gambar base64
+        let selectedImageBase64 = null;
+
+        // Fungsi untuk menangani input gambar
+        document.getElementById('image-upload').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    selectedImageBase64 = event.target.result;
+                    // Memberikan efek visual pada ikon jika gambar berhasil dipilih
+                    const imgBtn = document.querySelector('button[onclick*="image-upload"]');
+                    imgBtn.classList.add('bg-royal-accent/20', 'border-royal-accent');
+                    imgBtn.innerHTML = `<i class="ph-bold ph-check-circle text-xl text-royal-accent"></i>`;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
         async function generateCaption() {
-            const btn = document.querySelector('button');
+            const btn = document.querySelector('button[onclick="generateCaption()"]');
             const resultBox = document.getElementById('result-box');
             const resultText = document.getElementById('caption-result');
+            
             const topic = document.getElementById('topic').value;
             const tone = document.getElementById('tone').value;
             const platform = document.getElementById('platform').value;
 
-            if(!topic) { 
-                alert("Please enter a topic first!"); 
+            if(!topic && !selectedImageBase64) { 
+                alert("Please enter a topic or upload an image!"); 
                 return; 
             }
 
             const originalText = btn.innerHTML;
-            btn.innerHTML = `<i class="ph-bold ph-spinner animate-spin text-lg"></i> GENERATING MAGIC...`;
+            btn.innerHTML = `<i class="ph-bold ph-spinner animate-spin text-lg"></i> ANALYZING & GENERATING...`;
             btn.disabled = true;
             btn.classList.add('opacity-75');
 
@@ -210,14 +230,25 @@
                 const response = await fetch('/api/generate', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ topic, tone, platform })
+                    body: JSON.stringify({ 
+                        topic: topic || "Analyze this image and create a caption", 
+                        tone, 
+                        platform,
+                        image: selectedImageBase64 // Mengirim data gambar ke backend
+                    })
                 });
+                
                 const data = await response.json();
-                resultBox.classList.remove('hidden');
-                resultText.innerText = data.result; 
-                resultBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                
+                if(data.result) {
+                    resultBox.classList.remove('hidden');
+                    resultText.innerText = data.result; 
+                    resultBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                } else {
+                    throw new Error("Empty response from AI");
+                }
             } catch (error) {
-                alert("Something went wrong: " + error.message);
+                alert("Error: " + error.message);
             } finally {
                 btn.innerHTML = originalText;
                 btn.disabled = false;
