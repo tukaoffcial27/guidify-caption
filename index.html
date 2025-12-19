@@ -224,24 +224,29 @@
         let userPlan = "free";
         let userUsage = 0;
 
+        // Login & Logout
         window.login = () => signInWithPopup(auth, provider);
         window.logout = () => signOut(auth);
 
         onAuthStateChanged(auth, async (user) => {
             const section = document.getElementById('auth-section');
             const usageInfo = document.getElementById('usage-info');
+            
             if (user) {
+                // LOGGED IN STATE
                 currentUser = user;
                 section.innerHTML = `<button onclick="logout()" class="px-4 py-2 text-xs font-bold text-red-400 hover:text-red-300 transition uppercase tracking-widest underline underline-offset-4">Logout</button>`;
                 usageInfo.classList.remove('hidden');
                 await syncUserQuota();
             } else {
+                // GUEST STATE
                 currentUser = null;
                 section.innerHTML = `<button onclick="login()" class="px-5 py-2 rounded-full border border-royal-primary/50 text-xs font-bold text-white hover:bg-royal-primary/20 transition uppercase tracking-widest">Login</button>`;
                 usageInfo.classList.add('hidden');
             }
         });
 
+        // Sync Quota dari Firestore (Hanya untuk User Login)
         async function syncUserQuota() {
             if (!currentUser) return;
             const userRef = doc(db, "users", currentUser.uid);
@@ -265,23 +270,41 @@
             document.getElementById('quota-count').innerText = Math.max(0, 2 - userUsage);
         }
 
+        // FUNGSI UTAMA GENERATE CAPTION
         window.generateCaption = async () => {
-            if (!currentUser) return alert("Please Login first!");
-            if (userPlan === "free" && userUsage >= 2) return alert("Limit reached! Upgrade to Viral Pass for unlimited generation.");
-
             const btn = document.getElementById('gen-btn');
-            const topic = document.getElementById('topic').value;
-            const originalText = btn.innerHTML;
+            
+            // --- LOGIKA CEK KUOTA (TAMU vs LOGIN) ---
+            if (!currentUser) {
+                // Logic Tamu: Pakai LocalStorage
+                let guestUsage = localStorage.getItem('guest_usage_date_' + new Date().toDateString()) || 0;
+                if (guestUsage >= 2) {
+                    return alert("Free trial limit reached! Please Login to continue.");
+                }
+            } else {
+                // Logic User Login: Pakai Firestore
+                if (userPlan === "free" && userUsage >= 2) {
+                    return alert("Daily limit reached! Upgrade to Viral Pass for unlimited generation.");
+                }
+            }
 
+            // Mulai Proses Generate
+            const topic = document.getElementById('topic').value;
+            if(!topic && !window.selectedImageBase64) return alert("Please enter a topic or upload a photo!");
+
+            const originalText = btn.innerHTML;
             btn.disabled = true;
             btn.innerHTML = `<i class="ph-bold ph-spinner animate-spin text-lg"></i> ANALYZING...`;
 
             try {
+                // Modifikasi Prompt untuk Hashtag
+                const enhancedTopic = topic + ". IMPORTANT: At the very end, please include 3-5 relevant viral hashtags.";
+
                 const res = await fetch('/api/generate', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ 
-                        topic: topic || "Analyze image", 
+                        topic: enhancedTopic, // Kirim topic yang sudah ditambah instruksi hashtag
                         tone: document.getElementById('tone').value, 
                         platform: document.getElementById('platform').value, 
                         image: window.selectedImageBase64 
@@ -289,15 +312,27 @@
                 });
                 const data = await res.json();
                 
-                userUsage++;
-                const userRef = doc(db, "users", currentUser.uid);
-                await updateDoc(userRef, { dailyUsage: userUsage });
+                // Update Kuota Setelah Berhasil
+                if (!currentUser) {
+                    // Update LocalStorage Tamu
+                    let currentGuest = parseInt(localStorage.getItem('guest_usage_date_' + new Date().toDateString()) || 0);
+                    localStorage.setItem('guest_usage_date_' + new Date().toDateString(), currentGuest + 1);
+                } else {
+                    // Update Firestore User
+                    userUsage++;
+                    const userRef = doc(db, "users", currentUser.uid);
+                    await updateDoc(userRef, { dailyUsage: userUsage });
+                    document.getElementById('quota-count').innerText = Math.max(0, 2 - userUsage);
+                }
                 
-                document.getElementById('quota-count').innerText = Math.max(0, 2 - userUsage);
+                // Tampilkan Hasil
                 document.getElementById('result-box').classList.remove('hidden');
                 document.getElementById('caption-result').innerText = data.result;
-            } catch (e) { alert("An error occurred. Please try again."); }
-            finally { 
+
+            } catch (e) { 
+                console.error(e);
+                alert("An error occurred. Please try again."); 
+            } finally { 
                 btn.disabled = false; 
                 btn.innerHTML = originalText; 
             }
@@ -330,7 +365,7 @@
 
         function copyToClipboard() {
             navigator.clipboard.writeText(document.getElementById('caption-result').innerText);
-            alert("Caption copied to clipboard!");
+            alert("Caption & Hashtags copied!");
         }
     </script>
 </body>
