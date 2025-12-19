@@ -13,77 +13,27 @@
         tailwind.config = {
             theme: {
                 extend: {
-                    fontFamily: { 
-                        sans: ['Inter', 'sans-serif'],
-                        display: ['Orbitron', 'sans-serif']
-                    },
-                    colors: { 
-                        royal: { 
-                            dark: '#0a0118',       
-                            panel: '#1a0b2e',      
-                            primary: '#7c3aed',    
-                            accent: '#06b6d4',     
-                        } 
-                    },
-                    animation: {
-                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-                        'fade-in-up': 'fadeInUp 0.5s ease-out forwards',
-                    },
-                    keyframes: {
-                        fadeInUp: {
-                            '0%': { opacity: '0', transform: 'translateY(10px)' },
-                            '100%': { opacity: '1', transform: 'translateY(0)' },
-                        }
-                    }
+                    fontFamily: { sans: ['Inter', 'sans-serif'], display: ['Orbitron', 'sans-serif'] },
+                    colors: { royal: { dark: '#0a0118', panel: '#1a0b2e', primary: '#7c3aed', accent: '#06b6d4' } },
+                    animation: { 'fade-in': 'fadeIn 0.3s ease-out forwards' },
+                    keyframes: { fadeIn: { '0%': { opacity: '0', transform: 'translateY(10px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } } }
                 }
             }
         }
     </script>
     <style>
-        body {
-            background-color: #0a0118;
-            background-image: 
-                radial-gradient(circle at 10% 20%, rgba(124, 58, 237, 0.2) 0%, transparent 40%),
-                radial-gradient(circle at 90% 80%, rgba(6, 182, 212, 0.2) 0%, transparent 40%);
-            background-attachment: fixed;
-        }
-
-        .glass-panel {
-            background: rgba(26, 11, 46, 0.7);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(124, 58, 237, 0.3);
-            box-shadow: 0 0 40px -10px rgba(124, 58, 237, 0.3);
-        }
-
-        .input-luxury {
-            background: rgba(10, 1, 24, 0.8);
-            border: 1px solid rgba(124, 58, 237, 0.4);
-            color: #e2e8f0;
-            transition: all 0.3s ease;
-        }
-        .input-luxury:focus {
-            border-color: #06b6d4;
-            box-shadow: 0 0 20px rgba(6, 182, 212, 0.2);
-            outline: none;
-        }
-
-        .btn-neon {
-            background: linear-gradient(90deg, #7c3aed 0%, #06b6d4 100%);
-            background-size: 200% 200%;
-            animation: gradientMove 3s ease infinite;
-            border: 1px solid rgba(255,255,255,0.2);
-            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
-        }
-
-        @keyframes gradientMove {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
+        body { background-color: #0a0118; background-image: radial-gradient(circle at 10% 20%, rgba(124, 58, 237, 0.2) 0%, transparent 40%), radial-gradient(circle at 90% 80%, rgba(6, 182, 212, 0.2) 0%, transparent 40%); background-attachment: fixed; }
+        .glass-panel { background: rgba(26, 11, 46, 0.7); backdrop-filter: blur(20px); border: 1px solid rgba(124, 58, 237, 0.3); box-shadow: 0 0 40px -10px rgba(124, 58, 237, 0.3); }
+        .input-luxury { background: rgba(10, 1, 24, 0.8); border: 1px solid rgba(124, 58, 237, 0.4); color: #e2e8f0; transition: all 0.3s ease; }
+        .input-luxury:focus { border-color: #06b6d4; outline: none; }
+        .btn-neon { background: linear-gradient(90deg, #7c3aed 0%, #06b6d4 100%); background-size: 200% 200%; animation: gradientMove 3s ease infinite; }
+        @keyframes gradientMove { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+        /* Scrollbar Hide */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
-<body class="text-slate-300 antialiased min-h-screen flex flex-col items-center relative pb-40">
+<body class="text-slate-300 antialiased min-h-screen flex flex-col items-center relative pb-32">
 
     <nav class="w-full max-w-5xl px-6 py-6 flex justify-between items-center relative z-20">
         <div class="flex items-center gap-2">
@@ -98,26 +48,22 @@
         </div>
     </nav>
 
-    <main class="w-full max-w-md px-4 py-6 relative z-10">
-        
+    <main id="view-home" class="w-full max-w-md px-4 py-6 relative z-10 transition-all duration-300">
         <div class="text-center mb-8">
             <div class="inline-flex items-center gap-2 mb-4 px-4 py-1.5 rounded-full border border-royal-primary/50 bg-royal-primary/10 backdrop-blur-md shadow-[0_0_15px_rgba(124,58,237,0.3)]">
                 <i class="ph-fill ph-robot text-royal-accent text-lg"></i>
                 <span class="text-sm font-bold text-white tracking-widest uppercase font-display">GUIDIFY AI</span>
             </div>
-            
             <h1 class="text-3xl font-bold text-white font-display tracking-tight leading-tight text-center">
                 Make Your Post <br>
                 <span class="text-transparent bg-clip-text bg-gradient-to-r from-royal-primary to-royal-accent">Go Viral.</span>
             </h1>
-
             <p id="usage-info" class="text-[10px] text-slate-500 mt-2 uppercase font-bold tracking-widest hidden text-center">
                 Remaining: <span id="quota-count" class="text-royal-accent">2</span> / 2
             </p>
         </div>
 
         <div class="glass-panel rounded-3xl p-6 relative">
-            
             <div class="mb-4 text-left">
                 <label class="text-[10px] font-bold text-royal-accent uppercase tracking-wider mb-2 block flex justify-between">
                     What is your post about?
@@ -139,9 +85,7 @@
                         <p class="text-[10px] font-bold text-slate-400 uppercase">Image Attached</p>
                         <p id="file-name" class="text-[10px] text-royal-accent truncate max-w-[150px] font-bold"></p>
                     </div>
-                    <button onclick="removeImage()" class="text-red-400 p-2 hover:bg-red-400/10 rounded-lg transition">
-                        <i class="ph-bold ph-trash"></i>
-                    </button>
+                    <button onclick="removeImage()" class="text-red-400 p-2 hover:bg-red-400/10 rounded-lg transition"><i class="ph-bold ph-trash"></i></button>
                 </div>
             </div>
 
@@ -149,26 +93,24 @@
                 <div>
                     <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2 block">Tone / Vibe</label>
                     <div class="relative">
-                        <select id="tone" class="input-luxury w-full rounded-xl p-3 text-sm appearance-none cursor-pointer font-medium">
+                        <select id="tone" class="input-luxury w-full rounded-xl p-3 text-sm font-medium">
                             <option value="Casual & Fun">😎 Casual & Fun</option>
                             <option value="Aesthetic">✨ Aesthetic</option>
                             <option value="Professional">💼 Professional</option>
                             <option value="Educational">📚 Educational</option>
                             <option value="Sales/Promo">🔥 Sales / Promo</option>
                         </select>
-                        <i class="ph-bold ph-caret-down absolute right-3 top-3.5 text-royal-accent pointer-events-none"></i>
                     </div>
                 </div>
                 <div>
                     <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2 block">Platform</label>
                     <div class="relative">
-                        <select id="platform" class="input-luxury w-full rounded-xl p-3 text-sm appearance-none cursor-pointer font-medium">
+                        <select id="platform" class="input-luxury w-full rounded-xl p-3 text-sm font-medium">
                             <option value="Instagram">Instagram</option>
                             <option value="TikTok">TikTok</option>
                             <option value="Twitter/X">Twitter / X</option>
                             <option value="LinkedIn">LinkedIn</option>
                         </select>
-                        <i class="ph-bold ph-caret-down absolute right-3 top-3.5 text-royal-accent pointer-events-none"></i>
                     </div>
                 </div>
             </div>
@@ -179,32 +121,46 @@
             </button>
         </div>
 
-        <div id="result-box" class="mt-6 hidden animate-fade-in-up text-left">
+        <div id="result-box" class="mt-6 hidden animate-fade-in text-left">
             <div class="flex justify-between items-center mb-3 px-2">
                 <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">AI Result</span>
                 <span class="text-[10px] font-bold text-royal-accent bg-royal-accent/10 px-2 py-1 rounded border border-royal-accent/20">Ready to Post</span>
             </div>
-            
             <div class="bg-royal-dark/80 border border-slate-800 rounded-2xl p-5 relative group">
                 <p id="caption-result" class="text-sm text-slate-200 leading-relaxed whitespace-pre-line font-medium"></p>
-                <button onclick="copyToClipboard()" class="mt-4 w-full bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold py-3 rounded-lg flex items-center justify-center gap-2 transition border border-slate-700 uppercase tracking-widest">
+                <button onclick="copyToClipboard()" class="mt-4 w-full bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold py-3 rounded-lg flex items-center justify-center gap-2 border border-slate-700 uppercase tracking-widest">
                     <i class="ph-bold ph-copy"></i> Copy Text
                 </button>
             </div>
         </div>
-
     </main>
 
-    <div class="fixed bottom-6 left-1/2 transform -translate-x-1/2 glass-panel px-6 py-3 rounded-full flex gap-8 z-50">
-        <a href="#" class="text-royal-accent flex flex-col items-center gap-1"><i class="ph-fill ph-house text-xl"></i></a>
-        <a href="#" class="text-slate-500 hover:text-white transition flex flex-col items-center gap-1"><i class="ph-bold ph-clock-counter-clockwise text-xl"></i></a>
-        <a href="#" class="text-slate-500 hover:text-white transition flex flex-col items-center gap-1"><i class="ph-bold ph-user-circle text-xl"></i></a>
+    <main id="view-history" class="hidden w-full max-w-md px-4 py-6 relative z-10 animate-fade-in">
+        <h2 class="text-2xl font-bold text-white font-display mb-6 text-center tracking-wide">Your Activity</h2>
+        <div id="history-list" class="space-y-4 pb-24 overflow-y-auto max-h-[70vh] no-scrollbar">
+            <div class="text-center text-slate-500 py-10">
+                <i class="ph-duotone ph-clock-counter-clockwise text-4xl mb-2 opacity-50"></i>
+                <p class="text-xs">No history found yet.</p>
+            </div>
+        </div>
+    </main>
+
+    <div class="fixed bottom-6 left-1/2 transform -translate-x-1/2 glass-panel px-8 py-4 rounded-full flex gap-10 z-50 shadow-2xl shadow-royal-primary/20">
+        <button onclick="switchView('home')" id="nav-home" class="text-royal-accent hover:scale-110 transition flex flex-col items-center gap-1">
+            <i class="ph-fill ph-house text-2xl"></i>
+        </button>
+        <button onclick="switchView('history')" id="nav-history" class="text-slate-500 hover:text-white hover:scale-110 transition flex flex-col items-center gap-1">
+            <i class="ph-bold ph-clock-counter-clockwise text-2xl"></i>
+        </button>
+        <button onclick="alert('Profile feature coming soon!')" class="text-slate-500 hover:text-white hover:scale-110 transition flex flex-col items-center gap-1">
+            <i class="ph-bold ph-user-circle text-2xl"></i>
+        </button>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, addDoc, query, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBW3nULDHkqghoV6BdfC_PX_KKRy4l3B_8",
@@ -224,7 +180,7 @@
         let userPlan = "free";
         let userUsage = 0;
 
-        // Login & Logout
+        // --- AUTH LOGIC ---
         window.login = () => signInWithPopup(auth, provider);
         window.logout = () => signOut(auth);
 
@@ -233,20 +189,21 @@
             const usageInfo = document.getElementById('usage-info');
             
             if (user) {
-                // LOGGED IN STATE
                 currentUser = user;
                 section.innerHTML = `<button onclick="logout()" class="px-4 py-2 text-xs font-bold text-red-400 hover:text-red-300 transition uppercase tracking-widest underline underline-offset-4">Logout</button>`;
                 usageInfo.classList.remove('hidden');
                 await syncUserQuota();
             } else {
-                // GUEST STATE
                 currentUser = null;
                 section.innerHTML = `<button onclick="login()" class="px-5 py-2 rounded-full border border-royal-primary/50 text-xs font-bold text-white hover:bg-royal-primary/20 transition uppercase tracking-widest">Login</button>`;
                 usageInfo.classList.add('hidden');
             }
+            // Auto reload history if open
+            if(!document.getElementById('view-history').classList.contains('hidden')) {
+                window.loadHistory();
+            }
         });
 
-        // Sync Quota dari Firestore (Hanya untuk User Login)
         async function syncUserQuota() {
             if (!currentUser) return;
             const userRef = doc(db, "users", currentUser.uid);
@@ -270,26 +227,92 @@
             document.getElementById('quota-count').innerText = Math.max(0, 2 - userUsage);
         }
 
-        // FUNGSI UTAMA GENERATE CAPTION
+        // --- HISTORY LOGIC ---
+        
+        // 1. Save History
+        async function saveToHistory(caption, topic, platform) {
+            const entry = {
+                caption: caption,
+                topic: topic,
+                platform: platform,
+                date: new Date().toISOString()
+            };
+
+            if (currentUser) {
+                // Save to Firestore for Logged User
+                try {
+                    const historyRef = collection(db, "users", currentUser.uid, "history");
+                    await addDoc(historyRef, entry);
+                } catch (e) { console.error("Error saving history", e); }
+            } else {
+                // Save to LocalStorage for Guest
+                const guestHistory = JSON.parse(localStorage.getItem('guest_history') || '[]');
+                guestHistory.unshift(entry); // Add to top
+                localStorage.setItem('guest_history', JSON.stringify(guestHistory));
+            }
+        }
+
+        // 2. Load History
+        window.loadHistory = async () => {
+            const listContainer = document.getElementById('history-list');
+            listContainer.innerHTML = `<div class="text-center py-10"><i class="ph-bold ph-spinner animate-spin text-2xl text-royal-accent"></i></div>`;
+            
+            let historyData = [];
+
+            if (currentUser) {
+                // Fetch from Firestore
+                try {
+                    const historyRef = collection(db, "users", currentUser.uid, "history");
+                    const q = query(historyRef, orderBy("date", "desc"));
+                    const querySnapshot = await getDocs(q);
+                    historyData = querySnapshot.docs.map(doc => doc.data());
+                } catch (e) { console.error("Error fetching history", e); }
+            } else {
+                // Fetch from LocalStorage
+                historyData = JSON.parse(localStorage.getItem('guest_history') || '[]');
+            }
+
+            // Render HTML
+            if (historyData.length === 0) {
+                listContainer.innerHTML = `
+                    <div class="text-center text-slate-500 py-10 opacity-70">
+                        <i class="ph-duotone ph-clock-counter-clockwise text-5xl mb-3 text-slate-600"></i>
+                        <p class="text-xs uppercase tracking-widest">No history yet</p>
+                    </div>`;
+            } else {
+                listContainer.innerHTML = historyData.map(item => `
+                    <div class="glass-panel p-4 rounded-xl border border-white/5 relative group transition hover:bg-white/5">
+                        <div class="flex justify-between items-start mb-2">
+                            <span class="text-[10px] font-bold text-royal-accent uppercase tracking-wider bg-royal-accent/10 px-2 py-1 rounded border border-royal-accent/20">
+                                ${item.platform}
+                            </span>
+                            <span class="text-[10px] text-slate-500">${new Date(item.date).toLocaleDateString()}</span>
+                        </div>
+                        <p class="text-xs text-slate-300 font-medium mb-1 line-clamp-1 italic opacity-70">"${item.topic}"</p>
+                        <p class="text-sm text-white leading-relaxed line-clamp-3 mb-3">${item.caption}</p>
+                        <button onclick="navigator.clipboard.writeText(\`${item.caption.replace(/`/g, "\\`")}\`); alert('Copied!');" class="w-full py-2 text-[10px] font-bold uppercase tracking-widest border border-slate-700 rounded hover:bg-slate-700 transition text-slate-400 hover:text-white">
+                            Copy Again
+                        </button>
+                    </div>
+                `).join('');
+            }
+        }
+
+        // --- MAIN GENERATOR LOGIC ---
         window.generateCaption = async () => {
             const btn = document.getElementById('gen-btn');
             
-            // --- LOGIKA CEK KUOTA (TAMU vs LOGIN) ---
+            // Check Quota
             if (!currentUser) {
-                // Logic Tamu: Pakai LocalStorage
                 let guestUsage = localStorage.getItem('guest_usage_date_' + new Date().toDateString()) || 0;
-                if (guestUsage >= 2) {
-                    return alert("Free trial limit reached! Please Login to continue.");
-                }
+                if (guestUsage >= 2) return alert("Free trial limit reached! Please Login to continue.");
             } else {
-                // Logic User Login: Pakai Firestore
-                if (userPlan === "free" && userUsage >= 2) {
-                    return alert("Daily limit reached! Upgrade to Viral Pass for unlimited generation.");
-                }
+                if (userPlan === "free" && userUsage >= 2) return alert("Daily limit reached! Upgrade to Viral Pass.");
             }
 
-            // Mulai Proses Generate
             const topic = document.getElementById('topic').value;
+            const platform = document.getElementById('platform').value;
+            
             if(!topic && !window.selectedImageBase64) return alert("Please enter a topic or upload a photo!");
 
             const originalText = btn.innerHTML;
@@ -297,35 +320,35 @@
             btn.innerHTML = `<i class="ph-bold ph-spinner animate-spin text-lg"></i> ANALYZING...`;
 
             try {
-                // Modifikasi Prompt untuk Hashtag
-                const enhancedTopic = topic + ". IMPORTANT: At the very end, please include 3-5 relevant viral hashtags.";
+                // Hashtag Instruction
+                const enhancedTopic = topic + ". IMPORTANT: At the very end, include 3-5 viral hashtags.";
 
                 const res = await fetch('/api/generate', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ 
-                        topic: enhancedTopic, // Kirim topic yang sudah ditambah instruksi hashtag
+                        topic: enhancedTopic, 
                         tone: document.getElementById('tone').value, 
-                        platform: document.getElementById('platform').value, 
+                        platform: platform, 
                         image: window.selectedImageBase64 
                     })
                 });
                 const data = await res.json();
                 
-                // Update Kuota Setelah Berhasil
+                // Update Quota
                 if (!currentUser) {
-                    // Update LocalStorage Tamu
                     let currentGuest = parseInt(localStorage.getItem('guest_usage_date_' + new Date().toDateString()) || 0);
                     localStorage.setItem('guest_usage_date_' + new Date().toDateString(), currentGuest + 1);
                 } else {
-                    // Update Firestore User
                     userUsage++;
                     const userRef = doc(db, "users", currentUser.uid);
                     await updateDoc(userRef, { dailyUsage: userUsage });
                     document.getElementById('quota-count').innerText = Math.max(0, 2 - userUsage);
                 }
                 
-                // Tampilkan Hasil
+                // Save to History & Show Result
+                await saveToHistory(data.result, topic || "Image Analysis", platform);
+                
                 document.getElementById('result-box').classList.remove('hidden');
                 document.getElementById('caption-result').innerText = data.result;
 
@@ -340,8 +363,38 @@
     </script>
 
     <script>
-        window.selectedImageBase64 = null;
+        window.switchView = (viewName) => {
+            const homeView = document.getElementById('view-home');
+            const historyView = document.getElementById('view-history');
+            const navHome = document.getElementById('nav-home');
+            const navHistory = document.getElementById('nav-history');
 
+            if (viewName === 'home') {
+                homeView.classList.remove('hidden');
+                historyView.classList.add('hidden');
+                
+                navHome.classList.remove('text-slate-500');
+                navHome.classList.add('text-royal-accent');
+                
+                navHistory.classList.remove('text-royal-accent');
+                navHistory.classList.add('text-slate-500');
+            } else if (viewName === 'history') {
+                homeView.classList.add('hidden');
+                historyView.classList.remove('hidden');
+
+                navHistory.classList.remove('text-slate-500');
+                navHistory.classList.add('text-royal-accent');
+
+                navHome.classList.remove('text-royal-accent');
+                navHome.classList.add('text-slate-500');
+
+                // Trigger load history function
+                if (window.loadHistory) window.loadHistory();
+            }
+        }
+
+        // Image Logic
+        window.selectedImageBase64 = null;
         document.getElementById('image-upload').addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (file) {
