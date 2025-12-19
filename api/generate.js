@@ -15,14 +15,14 @@ export default async function (req) {
             return new Response(JSON.stringify({ result: "Missing API Key" }), { status: 500 });
         }
 
-        // MENGGUNAKAN MODEL LATEST UNTUK STABILITAS
-        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`;
+        // MENGGUNAKAN VERSI v1 DAN MODEL gemini-pro (PALING STABIL)
+        const apiUrl = `https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${apiKey}`;
 
         const response = await fetch(apiUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                contents: [{ parts: [{ text: `Write a viral social media caption for ${platform}. Topic: ${topic}. Tone: ${tone}. Language: English.` }] }]
+                contents: [{ parts: [{ text: `Write a viral social media caption for ${platform}. Topic: ${topic}. Tone: ${tone}. Language: English. Include emojis.` }] }]
             })
         });
 
