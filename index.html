@@ -58,7 +58,7 @@
 
         .input-luxury {
             background: rgba(10, 1, 24, 0.8);
-            border: 1px solid rgba(124, 58, 237, 0.3);
+            border: 1px solid rgba(124, 58, 237, 0.4);
             color: #e2e8f0;
             transition: all 0.3s ease;
         }
@@ -95,8 +95,6 @@
         </div>
     </nav>
 
-    <div class="fixed top-[-20%] left-[-10%] w-[500px] h-[500px] bg-royal-primary rounded-full mix-blend-screen filter blur-[150px] opacity-20 animate-pulse-slow"></div>
-
     <main class="w-full max-w-md px-4 py-6 relative z-10">
         
         <div class="text-center mb-8">
@@ -113,16 +111,31 @@
 
         <div class="glass-panel rounded-3xl p-6 relative">
             
-            <div class="mb-5 relative">
+            <div class="mb-4">
                 <label class="text-[10px] font-bold text-royal-accent uppercase tracking-wider mb-2 block flex justify-between">
                     What is your post about?
-                    <span class="text-slate-500 lowercase font-normal italic">supports multiple languages</span>
+                    <span class="text-slate-500 lowercase font-normal italic">detects language automatically</span>
                 </label>
-                <textarea id="topic" rows="3" class="input-luxury w-full rounded-xl p-4 text-sm placeholder-slate-500 font-medium pr-12" placeholder="e.g. Launching a new coffee shop in downtown, cozy vibes..."></textarea>
-                <button onclick="document.getElementById('image-upload').click()" class="absolute right-3 bottom-3 text-royal-accent/60 hover:text-royal-accent transition p-2 bg-royal-dark/50 rounded-lg border border-white/5">
-                    <i class="ph-bold ph-image text-xl"></i>
+                <textarea id="topic" rows="3" class="input-luxury w-full rounded-xl p-4 text-sm placeholder-slate-500 font-medium" placeholder="e.g. Launching a new coffee shop in downtown..."></textarea>
+            </div>
+
+            <div class="mb-6">
+                <button onclick="document.getElementById('image-upload').click()" id="upload-btn" class="w-full py-3 px-4 rounded-xl border border-dashed border-royal-primary/50 bg-royal-primary/5 hover:bg-royal-primary/10 transition flex items-center justify-center gap-3 group">
+                    <i class="ph-bold ph-image text-xl text-royal-accent group-hover:scale-110 transition"></i>
+                    <span class="text-xs font-bold text-white tracking-wide">ADD PHOTO FOR BETTER ANALYSIS</span>
                 </button>
                 <input type="file" id="image-upload" class="hidden" accept="image/*">
+                
+                <div id="image-preview-container" class="hidden mt-3 p-2 bg-royal-dark/50 rounded-lg border border-white/5 flex items-center gap-3">
+                    <img id="image-preview" src="#" class="w-12 h-12 object-cover rounded-md border border-royal-accent/30">
+                    <div class="flex-1">
+                        <p class="text-[10px] font-bold text-slate-400 uppercase">Image Attached</p>
+                        <p id="file-name" class="text-[10px] text-royal-accent truncate max-w-[150px]">image.jpg</p>
+                    </div>
+                    <button onclick="removeImage()" class="text-red-400 p-2 hover:bg-red-400/10 rounded-lg transition">
+                        <i class="ph-bold ph-trash"></i>
+                    </button>
+                </div>
             </div>
 
             <div class="grid grid-cols-2 gap-4 mb-6">
@@ -131,7 +144,7 @@
                     <div class="relative">
                         <select id="tone" class="input-luxury w-full rounded-xl p-3 text-sm appearance-none cursor-pointer font-medium">
                             <option value="Casual & Fun">😎 Casual & Fun</option>
-                            <option value="Aesthetic">✨ Aesthetic / Poetic</option>
+                            <option value="Aesthetic">✨ Aesthetic</option>
                             <option value="Professional">💼 Professional</option>
                             <option value="Educational">📚 Educational</option>
                             <option value="Sales/Promo">🔥 Hard-Selling</option>
@@ -188,24 +201,33 @@
     </div>
 
     <script>
-        // Variabel untuk menyimpan data gambar base64
         let selectedImageBase64 = null;
 
-        // Fungsi untuk menangani input gambar
+        // Handle Image Upload & Preview
         document.getElementById('image-upload').addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (file) {
                 const reader = new FileReader();
                 reader.onload = function(event) {
                     selectedImageBase64 = event.target.result;
-                    // Memberikan efek visual pada ikon jika gambar berhasil dipilih
-                    const imgBtn = document.querySelector('button[onclick*="image-upload"]');
-                    imgBtn.classList.add('bg-royal-accent/20', 'border-royal-accent');
-                    imgBtn.innerHTML = `<i class="ph-bold ph-check-circle text-xl text-royal-accent"></i>`;
+                    
+                    // Show Preview UI
+                    document.getElementById('image-preview').src = selectedImageBase64;
+                    document.getElementById('file-name').innerText = file.name;
+                    document.getElementById('image-preview-container').classList.remove('hidden');
+                    document.getElementById('upload-btn').classList.add('hidden');
                 };
                 reader.readAsDataURL(file);
             }
         });
+
+        // Remove Image Function
+        function removeImage() {
+            selectedImageBase64 = null;
+            document.getElementById('image-upload').value = "";
+            document.getElementById('image-preview-container').classList.add('hidden');
+            document.getElementById('upload-btn').classList.remove('hidden');
+        }
 
         async function generateCaption() {
             const btn = document.querySelector('button[onclick="generateCaption()"]');
@@ -217,12 +239,12 @@
             const platform = document.getElementById('platform').value;
 
             if(!topic && !selectedImageBase64) { 
-                alert("Please enter a topic or upload an image!"); 
+                alert("Please enter a topic or upload a photo!"); 
                 return; 
             }
 
             const originalText = btn.innerHTML;
-            btn.innerHTML = `<i class="ph-bold ph-spinner animate-spin text-lg"></i> ANALYZING & GENERATING...`;
+            btn.innerHTML = `<i class="ph-bold ph-spinner animate-spin text-lg"></i> ANALYZING...`;
             btn.disabled = true;
             btn.classList.add('opacity-75');
 
@@ -231,10 +253,10 @@
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ 
-                        topic: topic || "Analyze this image and create a caption", 
+                        topic: topic || "Analyze this image", 
                         tone, 
                         platform,
-                        image: selectedImageBase64 // Mengirim data gambar ke backend
+                        image: selectedImageBase64 
                     })
                 });
                 
@@ -245,7 +267,7 @@
                     resultText.innerText = data.result; 
                     resultBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 } else {
-                    throw new Error("Empty response from AI");
+                    throw new Error("AI Error");
                 }
             } catch (error) {
                 alert("Error: " + error.message);
@@ -259,7 +281,7 @@
         function copyToClipboard() {
             const text = document.getElementById('caption-result').innerText;
             navigator.clipboard.writeText(text);
-            alert("Caption copied to clipboard!");
+            alert("Caption copied!");
         }
     </script>
 </body>
