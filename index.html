@@ -82,7 +82,18 @@
         }
     </style>
 </head>
-<body class="text-slate-300 antialiased min-h-screen flex flex-col items-center relative pb-32">
+<body class="text-slate-300 antialiased min-h-screen flex flex-col items-center relative pb-40">
+
+    <nav class="w-full max-w-5xl px-6 py-6 flex justify-between items-center relative z-20">
+        <div class="flex items-center gap-2">
+            <i class="ph-fill ph-sparkle text-royal-accent text-2xl"></i>
+            <span class="font-display font-bold text-white tracking-wider">GUIDIFY</span>
+        </div>
+        <div class="flex items-center gap-6">
+            <a href="#" class="text-xs font-bold text-slate-400 hover:text-white transition uppercase tracking-widest">Pricing</a>
+            <a href="#" class="px-5 py-2 rounded-full border border-royal-primary/50 text-xs font-bold text-white hover:bg-royal-primary/20 transition uppercase tracking-widest">Login</a>
+        </div>
+    </nav>
 
     <div class="fixed top-[-20%] left-[-10%] w-[500px] h-[500px] bg-royal-primary rounded-full mix-blend-screen filter blur-[150px] opacity-20 animate-pulse-slow"></div>
 
@@ -102,9 +113,16 @@
 
         <div class="glass-panel rounded-3xl p-6 relative">
             
-            <div class="mb-5">
-                <label class="text-[10px] font-bold text-royal-accent uppercase tracking-wider mb-2 block">What is your post about?</label>
-                <textarea id="topic" rows="3" class="input-luxury w-full rounded-xl p-4 text-sm placeholder-slate-500 font-medium" placeholder="e.g. Launching a new coffee shop in downtown, cozy vibes..."></textarea>
+            <div class="mb-5 relative">
+                <label class="text-[10px] font-bold text-royal-accent uppercase tracking-wider mb-2 block flex justify-between">
+                    What is your post about?
+                    <span class="text-slate-500 lowercase font-normal italic">supports multiple languages</span>
+                </label>
+                <textarea id="topic" rows="3" class="input-luxury w-full rounded-xl p-4 text-sm placeholder-slate-500 font-medium pr-12" placeholder="e.g. Launching a new coffee shop in downtown, cozy vibes..."></textarea>
+                <button onclick="document.getElementById('image-upload').click()" class="absolute right-3 bottom-3 text-royal-accent/60 hover:text-royal-accent transition p-2 bg-royal-dark/50 rounded-lg border border-white/5">
+                    <i class="ph-bold ph-image text-xl"></i>
+                </button>
+                <input type="file" id="image-upload" class="hidden" accept="image/*">
             </div>
 
             <div class="grid grid-cols-2 gap-4 mb-6">
@@ -148,9 +166,7 @@
             </div>
             
             <div class="bg-royal-dark/80 border border-slate-800 rounded-2xl p-5 relative group">
-                <p id="caption-result" class="text-sm text-slate-200 leading-relaxed whitespace-pre-line font-medium">
-                    </p>
-                
+                <p id="caption-result" class="text-sm text-slate-200 leading-relaxed whitespace-pre-line font-medium"></p>
                 <button onclick="copyToClipboard()" class="mt-4 w-full bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold py-3 rounded-lg flex items-center justify-center gap-2 transition border border-slate-700">
                     <i class="ph-bold ph-copy"></i> Copy Text
                 </button>
@@ -176,45 +192,33 @@
             const btn = document.querySelector('button');
             const resultBox = document.getElementById('result-box');
             const resultText = document.getElementById('caption-result');
-            
-            // Ambil Data dari Input
             const topic = document.getElementById('topic').value;
             const tone = document.getElementById('tone').value;
             const platform = document.getElementById('platform').value;
 
-            // Validasi jika kosong
             if(!topic) { 
                 alert("Please enter a topic first!"); 
                 return; 
             }
 
-            // Ubah Tombol jadi Loading
             const originalText = btn.innerHTML;
             btn.innerHTML = `<i class="ph-bold ph-spinner animate-spin text-lg"></i> GENERATING MAGIC...`;
             btn.disabled = true;
             btn.classList.add('opacity-75');
 
             try {
-                // PANGGIL BACKEND
                 const response = await fetch('/api/generate', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ topic, tone, platform })
                 });
-
                 const data = await response.json();
-
-                // Tampilkan Hasil
                 resultBox.classList.remove('hidden');
                 resultText.innerText = data.result; 
-                
-                // Scroll ke hasil
                 resultBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
-
             } catch (error) {
                 alert("Something went wrong: " + error.message);
             } finally {
-                // Balikkan Tombol Normal
                 btn.innerHTML = originalText;
                 btn.disabled = false;
                 btn.classList.remove('opacity-75');
@@ -227,6 +231,5 @@
             alert("Caption copied to clipboard!");
         }
     </script>
-
 </body>
 </html>
