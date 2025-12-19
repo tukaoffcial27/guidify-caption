@@ -103,10 +103,13 @@
                 <i class="ph-fill ph-robot text-royal-accent text-lg"></i>
                 <span class="text-sm font-bold text-white tracking-widest uppercase font-display">GUIDIFY AI</span>
             </div>
-            <h1 class="text-3xl font-bold text-white font-display tracking-tight leading-tight">
+            <h1 class="text-3xl font-bold text-white font-display tracking-tight leading-tight text-center">
                 Make Your Post <br>
                 <span class="text-transparent bg-clip-text bg-gradient-to-r from-royal-primary to-royal-accent">Go Viral.</span>
             </h1>
+            <p id="usage-info" class="text-[10px] text-slate-500 mt-2 uppercase font-bold tracking-widest hidden text-center">
+                Remaining: <span id="quota-count" class="text-royal-accent">2</span> / 2
+            </p>
         </div>
 
         <div class="glass-panel rounded-3xl p-6 relative">
@@ -129,9 +132,9 @@
                     <img id="image-preview" src="#" class="w-12 h-12 object-cover rounded-md border border-royal-accent/30">
                     <div class="flex-1">
                         <p class="text-[10px] font-bold text-slate-400 uppercase">Image Attached</p>
-                        <p id="file-name" class="text-[10px] text-royal-accent truncate max-w-[150px]"></p>
+                        <p id="file-name" class="text-[10px] text-royal-accent truncate max-w-[150px] font-bold"></p>
                     </div>
-                    <button onclick="removeImage()" class="text-red-400 p-2 hover:bg-red-400/10 rounded-lg"><i class="ph-bold ph-trash"></i></button>
+                    <button onclick="removeImage()" class="text-red-400 p-2 hover:bg-red-400/10 rounded-lg transition"><i class="ph-bold ph-trash"></i></button>
                 </div>
             </div>
 
@@ -164,10 +167,6 @@
         </div>
 
         <div id="result-box" class="mt-6 hidden animate-fade-in-up text-left">
-            <div class="flex justify-between items-center mb-3 px-2">
-                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">AI Result</span>
-                <span class="text-[10px] font-bold text-royal-accent bg-royal-accent/10 px-2 py-1 rounded border border-royal-accent/20">Ready to Post</span>
-            </div>
             <div class="bg-royal-dark/80 border border-slate-800 rounded-2xl p-5 relative group">
                 <p id="caption-result" class="text-sm text-slate-200 leading-relaxed whitespace-pre-line font-medium"></p>
                 <button onclick="copyToClipboard()" class="mt-4 w-full bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold py-3 rounded-lg flex items-center justify-center gap-2 border border-slate-700 uppercase">
@@ -186,8 +185,8 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        // Config dari Bapak
         const firebaseConfig = {
             apiKey: "AIzaSyBW3nULDHkqghoV6BdfC_PX_KKRy4l3B_8",
             authDomain: "pixofy-app.firebaseapp.com",
@@ -199,85 +198,104 @@
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
+        const db = getFirestore(app);
         const provider = new GoogleAuthProvider();
 
-        window.login = async () => {
-            try {
-                await signInWithPopup(auth, provider);
-            } catch (error) {
-                console.error("Login detail:", error);
-                alert("Login Failed: Make sure to add 'caption.guidify.app' to Authorized Domains in Firebase Console.");
-            }
-        };
+        let currentUser = null;
+        let userPlan = "free";
+        let userUsage = 0;
 
+        window.login = () => signInWithPopup(auth, provider);
         window.logout = () => signOut(auth);
 
-        onAuthStateChanged(auth, (user) => {
+        onAuthStateChanged(auth, async (user) => {
             const section = document.getElementById('auth-section');
+            const usageInfo = document.getElementById('usage-info');
             if (user) {
-                section.innerHTML = `<button onclick="logout()" class="px-4 py-2 text-xs font-bold text-red-400 uppercase tracking-widest underline">Logout</button>`;
+                currentUser = user;
+                section.innerHTML = `<button onclick="logout()" class="px-4 py-2 text-xs font-bold text-red-400 uppercase underline tracking-widest">Logout</button>`;
+                usageInfo.classList.remove('hidden');
+                await syncUserQuota();
             } else {
-                section.innerHTML = `<button onclick="login()" class="px-5 py-2 rounded-full border border-royal-primary/50 text-xs font-bold text-white hover:bg-royal-primary/20 transition uppercase tracking-widest">Login</button>`;
-            }
-        });
-    </script>
-
-    <script>
-        // JS Logic tetap sama dan utuh sesuai struktur sebelumnya
-        let selectedImageBase64 = null;
-
-        document.getElementById('image-upload').addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = (event) => {
-                    selectedImageBase64 = event.target.result;
-                    document.getElementById('image-preview').src = selectedImageBase64;
-                    document.getElementById('file-name').innerText = file.name;
-                    document.getElementById('image-preview-container').classList.remove('hidden');
-                    document.getElementById('upload-btn').classList.add('hidden');
-                };
-                reader.readAsDataURL(file);
+                currentUser = null;
+                section.innerHTML = `<button onclick="login()" class="px-5 py-2 rounded-full border border-royal-primary/50 text-xs font-bold text-white uppercase tracking-widest">Login</button>`;
+                usageInfo.classList.add('hidden');
             }
         });
 
-        function removeImage() {
-            selectedImageBase64 = null;
-            document.getElementById('image-preview-container').classList.add('hidden');
-            document.getElementById('upload-btn').classList.remove('hidden');
+        async function syncUserQuota() {
+            if (!currentUser) return;
+            const userRef = doc(db, "users", currentUser.uid);
+            const userSnap = await getDoc(userRef);
+            const today = new Date().toDateString();
+
+            if (userSnap.exists()) {
+                const data = userSnap.data();
+                if (data.lastUsageDate !== today) {
+                    await updateDoc(userRef, { dailyUsage: 0, lastUsageDate: today });
+                    userUsage = 0;
+                } else {
+                    userUsage = data.dailyUsage;
+                }
+                userPlan = data.plan || "free";
+            } else {
+                await setDoc(userRef, { email: currentUser.email, dailyUsage: 0, lastUsageDate: today, plan: "free" });
+                userUsage = 0;
+                userPlan = "free";
+            }
+            document.getElementById('quota-count').innerText = Math.max(0, 2 - userUsage);
         }
 
-        async function generateCaption() {
+        window.generateCaption = async () => {
+            if (!currentUser) return alert("Please Login first!");
+            if (userPlan === "free" && userUsage >= 2) return alert("Limit reached! Upgrade to Viral Pass.");
+
             const btn = document.getElementById('gen-btn');
             const topic = document.getElementById('topic').value;
-            if(!topic && !selectedImageBase64) return alert("Enter topic or upload photo!");
-
-            btn.disabled = true;
             const originalText = btn.innerHTML;
-            btn.innerHTML = `<i class="ph-bold ph-spinner animate-spin text-lg"></i> ANALYZING...`;
+            btn.disabled = true;
+            btn.innerHTML = `ANALYZING...`;
 
             try {
                 const res = await fetch('/api/generate', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        topic: topic || "Analyze this image", 
-                        tone: document.getElementById('tone').value, 
-                        platform: document.getElementById('platform').value, 
-                        image: selectedImageBase64 
-                    })
+                    body: JSON.stringify({ topic: topic || "Analyze image", tone: document.getElementById('tone').value, platform: document.getElementById('platform').value, image: window.selectedImageBase64 })
                 });
                 const data = await res.json();
+                userUsage++;
+                await updateDoc(doc(db, "users", currentUser.uid), { dailyUsage: userUsage });
+                document.getElementById('quota-count').innerText = Math.max(0, 2 - userUsage);
                 document.getElementById('result-box').classList.remove('hidden');
                 document.getElementById('caption-result').innerText = data.result;
-            } catch (e) { alert("Generation failed!"); }
+            } catch (e) { alert("Error!"); }
             finally { btn.disabled = false; btn.innerHTML = originalText; }
-        }
+        };
+    </script>
 
-        function copyToClipboard() {
+    <script>
+        window.selectedImageBase64 = null;
+        document.getElementById('image-upload').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+                window.selectedImageBase64 = ev.target.result;
+                document.getElementById('image-preview').src = window.selectedImageBase64;
+                document.getElementById('file-name').innerText = file.name;
+                document.getElementById('image-preview-container').classList.remove('hidden');
+                document.getElementById('upload-btn').classList.add('hidden');
+            };
+            reader.readAsDataURL(file);
+        });
+        window.removeImage = () => {
+            window.selectedImageBase64 = null;
+            document.getElementById('image-preview-container').classList.add('hidden');
+            document.getElementById('upload-btn').classList.remove('hidden');
+        };
+        window.copyToClipboard = () => {
             navigator.clipboard.writeText(document.getElementById('caption-result').innerText);
             alert("Copied!");
-        }
+        };
     </script>
 </body>
 </html>
