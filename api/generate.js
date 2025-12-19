@@ -1,61 +1,42 @@
 export const config = {
-    runtime: 'edge', // Agar super cepat (Vercel Edge Function)
+    runtime: 'edge',
 };
 
 export default async function (req) {
-    // 1. Cek Metode Request (Harus POST)
     if (req.method !== 'POST') {
         return new Response('Method not allowed', { status: 405 });
     }
 
     try {
-        // 2. Ambil Data dari HTML (Topik, Gaya, Platform)
         const { topic, tone, platform } = await req.json();
+        const apiKey = process.env.GEMINI_API_KEY; 
 
-        // 3. Cek Apakah API Key Sudah Ada (Nanti kita set di Vercel)
-        const apiKey = process.env.OPENAI_API_KEY; 
-        
         if (!apiKey) {
-            // Mode Simulasi (Jika belum bayar OpenAI, tetap jalan tapi dummy)
             return new Response(JSON.stringify({ 
-                result: `[MODE SIMULASI] Karena API Key belum aktif, ini contoh hasil:\n\nTopik: ${topic}\nGaya: ${tone}\nPlatform: ${platform}\n\nKeren kan? Nanti kalau sudah bayar, ini isinya beneran dari AI!` 
-            }), {
-                headers: { 'Content-Type': 'application/json' }
-            });
+                result: "Error: API Key is missing in Vercel settings." 
+            }), { status: 500 });
         }
 
-        // 4. Prompt Engineering (Perintah ke AI)
-        const prompt = `Buatkan caption sosial media untuk platform ${platform}.
-        Topik: "${topic}"
-        Gaya Bahasa: ${tone}
-        Bahasa: Indonesia (Gaul dan Menarik).
-        Sertakan emoji yang relevan dan 5-10 hashtag populer di akhir.
-        Jangan pakai tanda kutip di awal/akhir.`;
+        const prompt = `Write a viral social media caption for ${platform}.
+        Topic: "${topic}"
+        Tone: ${tone}
+        Language: English (Engaging & Trendy).
+        Include relevant emojis and 5-10 hashtags at the end. Do not use quotes.`;
 
-        // 5. Kirim ke OpenAI
-        const response = await fetch('https://api.openai.com/v1/chat/completions', {
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${apiKey}`
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                model: 'gpt-3.5-turbo', // Model murah & cepat
-                messages: [{ role: 'user', content: prompt }],
-                temperature: 0.7, // Kreativitas
-                max_tokens: 500,
+                contents: [{ parts: [{ text: prompt }] }]
             })
         });
 
         const data = await response.json();
+        if (data.error) throw new Error(data.error.message);
 
-        // Cek jika ada error dari OpenAI (Misal saldo habis)
-        if (data.error) {
-            throw new Error(data.error.message);
-        }
+        const resultText = data.candidates[0].content.parts[0].text;
 
-        // 6. Kirim Balik Hasil ke HTML
-        return new Response(JSON.stringify({ result: data.choices[0].message.content }), {
+        return new Response(JSON.stringify({ result: resultText }), {
             headers: { 'Content-Type': 'application/json' }
         });
 
