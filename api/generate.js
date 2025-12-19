@@ -12,47 +12,32 @@ export default async function (req) {
         const apiKey = process.env.GEMINI_API_KEY; 
 
         if (!apiKey) {
-            return new Response(JSON.stringify({ 
-                result: "Error: GEMINI_API_KEY is missing in Vercel." 
-            }), { status: 500 });
+            return new Response(JSON.stringify({ result: "Missing API Key" }), { status: 500 });
         }
 
-        // Menggunakan URL v1 yang lebih stabil
-        const apiUrl = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+        // MENGGUNAKAN MODEL LATEST UNTUK STABILITAS
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`;
 
         const response = await fetch(apiUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                contents: [{
-                    parts: [{
-                        text: `Write a viral social media caption for ${platform}. 
-                        Topic: "${topic}". 
-                        Tone: ${tone}. 
-                        Language: English. 
-                        Include 5-10 hashtags and emojis.`
-                    }]
-                }]
+                contents: [{ parts: [{ text: `Write a viral social media caption for ${platform}. Topic: ${topic}. Tone: ${tone}. Language: English.` }] }]
             })
         });
 
         const data = await response.json();
         
         if (data.error) {
-            throw new Error(data.error.message);
+            return new Response(JSON.stringify({ result: "API Error: " + data.error.message }), { status: 500 });
         }
 
-        // Mengambil hasil teks dari struktur data Google
         const resultText = data.candidates[0].content.parts[0].text;
-
         return new Response(JSON.stringify({ result: resultText }), {
             headers: { 'Content-Type': 'application/json' }
         });
 
     } catch (error) {
-        return new Response(JSON.stringify({ result: "AI Error: " + error.message }), {
-            status: 500,
-            headers: { 'Content-Type': 'application/json' }
-        });
+        return new Response(JSON.stringify({ result: "System Error: " + error.message }), { status: 500 });
     }
 }
