@@ -104,10 +104,11 @@
     const userUid = localStorage.getItem('user_uid') || "GUEST";
 
     // 2. Link Lemon Squeezy (Otomatis ditambah ID User)
-    const links = {
-        monthly: `https://guidify.lemonsqueezy.com/checkout/buy/3ef14050-6b22-469b-ab66-643c3b756182?checkout[custom][user_id]=${userUid}`,
-        yearly:  `https://guidify.lemonsqueezy.com/checkout/buy/166aadbe-ccf2-40c5-a07c-42b3c64f1951?checkout[custom][user_id]=${userUid}`
-    };
+    // Ganti dengan link produk test mode yang baru Anda buat tadi
+const links = {
+    monthly: `https://guidify.lemonsqueezy.com/checkout/buy/d1f4eabd-4cd9-4a0a-bf9e-7b140f1ac8dd?checkout[custom][user_id]=${userUid}`,
+    yearly:  `https://guidify.lemonsqueezy.com/checkout/buy/d1f4eabd-4cd9-4a0a-bf9e-7b140f1ac8dd?checkout[custom][user_id]=${userUid}`
+};
 
     // Set default ke Monthly saat halaman dibuka
     window.onload = () => {
