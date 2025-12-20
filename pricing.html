@@ -99,52 +99,52 @@
         </div>
     </main>
 
-    <script>
-        // --- ISI LINK LEMON SQUEEZY DI SINI ---
-        const links = {
-            monthly: "https://guidify.lemonsqueezy.com/checkout/buy/3ef14050-6b22-469b-ab66-643c3b756182",
-            yearly:  "https://guidify.lemonsqueezy.com/checkout/buy/166aadbe-ccf2-40c5-a07c-42b3c64f1951"
-        };
+    <<script>
+    // 1. Ambil ID User yang tadi disimpan di index.html
+    const userUid = localStorage.getItem('user_uid') || "GUEST";
 
-        // Set default ke Monthly saat halaman dibuka
-        window.onload = () => {
-            document.getElementById('buy-btn').href = links.monthly;
-        };
+    // 2. Link Lemon Squeezy (Otomatis ditambah ID User)
+    const links = {
+        monthly: `https://guidify.lemonsqueezy.com/checkout/buy/3ef14050-6b22-469b-ab66-643c3b756182?checkout[custom][user_id]=${userUid}`,
+        yearly:  `https://guidify.lemonsqueezy.com/checkout/buy/166aadbe-ccf2-40c5-a07c-42b3c64f1951?checkout[custom][user_id]=${userUid}`
+    };
 
-        function setBilling(plan) {
-            const btnMonthly = document.getElementById('btn-monthly');
-            const btnYearly = document.getElementById('btn-yearly');
-            const priceDisplay = document.getElementById('price-display');
-            const pricePeriod = document.getElementById('price-period');
-            const buyBtn = document.getElementById('buy-btn');
-
-            if(plan === 'monthly') {
-                // Ubah Tampilan Tombol
-                btnMonthly.classList.add('bg-white', 'text-royal-dark', 'shadow-lg');
-                btnMonthly.classList.remove('text-slate-400');
-                
-                btnYearly.classList.remove('bg-white', 'text-royal-dark', 'shadow-lg');
-                btnYearly.classList.add('text-slate-400');
-                
-                // Ubah Harga & Link
-                priceDisplay.innerText = "$7";
-                pricePeriod.innerText = "/month";
-                buyBtn.href = links.monthly;
-
-            } else {
-                // Ubah Tampilan Tombol
-                btnYearly.classList.add('bg-white', 'text-royal-dark', 'shadow-lg');
-                btnYearly.classList.remove('text-slate-400');
-
-                btnMonthly.classList.remove('bg-white', 'text-royal-dark', 'shadow-lg');
-                btnMonthly.classList.add('text-slate-400');
-
-                // Ubah Harga & Link
-                priceDisplay.innerText = "$69";
-                pricePeriod.innerText = "/year";
-                buyBtn.href = links.yearly;
-            }
+    // Set default ke Monthly saat halaman dibuka
+    window.onload = () => {
+        const buyBtn = document.getElementById('buy-btn');
+        if(!localStorage.getItem('user_uid')) {
+            buyBtn.onclick = () => { alert("Silakan Login di halaman utama terlebih dahulu sebelum upgrade!"); return false; };
         }
-    </script>
+        buyBtn.href = links.monthly;
+    };
+
+    function setBilling(plan) {
+        const btnMonthly = document.getElementById('btn-monthly');
+        const btnYearly = document.getElementById('btn-yearly');
+        const priceDisplay = document.getElementById('price-display');
+        const pricePeriod = document.getElementById('price-period');
+        const buyBtn = document.getElementById('buy-btn');
+
+        if(plan === 'monthly') {
+            btnMonthly.classList.add('bg-white', 'text-royal-dark', 'shadow-lg');
+            btnMonthly.classList.remove('text-slate-400');
+            btnYearly.classList.remove('bg-white', 'text-royal-dark', 'shadow-lg');
+            btnYearly.classList.add('text-slate-400');
+            
+            priceDisplay.innerText = "$7";
+            pricePeriod.innerText = "/month";
+            buyBtn.href = links.monthly;
+        } else {
+            btnYearly.classList.add('bg-white', 'text-royal-dark', 'shadow-lg');
+            btnYearly.classList.remove('text-slate-400');
+            btnMonthly.classList.remove('bg-white', 'text-royal-dark', 'shadow-lg');
+            btnMonthly.classList.add('text-slate-400');
+
+            priceDisplay.innerText = "$69";
+            pricePeriod.innerText = "/year";
+            buyBtn.href = links.yearly;
+        }
+    }
+</script>
 </body>
 </html>
