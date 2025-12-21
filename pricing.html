@@ -22,7 +22,6 @@
         body { background-color: #0a0118; background-image: radial-gradient(circle at 10% 20%, rgba(124, 58, 237, 0.2) 0%, transparent 40%); }
         .glass-panel { background: rgba(26, 11, 46, 0.7); backdrop-filter: blur(20px); border: 1px solid rgba(124, 58, 237, 0.3); }
         .btn-premium { background: linear-gradient(90deg, #7c3aed 0%, #06b6d4 100%); }
-        /* Transisi halus untuk toggle */
         .toggle-btn { transition: all 0.3s ease; }
     </style>
 </head>
@@ -54,40 +53,33 @@
         </div>
 
         <div class="grid md:grid-cols-2 gap-8 max-w-2xl mx-auto mb-16">
-            
             <div class="glass-panel rounded-3xl p-8 flex flex-col items-start text-left border-white/10 opacity-80 hover:opacity-100 transition">
                 <h3 class="text-xl font-bold text-white mb-2">Starter</h3>
                 <p class="text-sm text-slate-400 mb-6">For casual creators</p>
                 <div class="text-4xl font-bold text-white mb-6">$0 <span class="text-sm text-slate-500 font-normal">/forever</span></div>
-                
                 <ul class="space-y-4 mb-8 flex-1">
                     <li class="flex items-center gap-3 text-sm"><i class="ph-bold ph-check text-royal-accent"></i> 2 AI Captions / day</li>
                     <li class="flex items-center gap-3 text-sm text-slate-500"><i class="ph-bold ph-x text-red-400"></i> No Magic Photo Scan</li>
                 </ul>
-                
                 <a href="index.html" class="w-full py-3 rounded-xl border border-white/20 text-center font-bold text-sm hover:bg-white/5 transition uppercase tracking-wider block">Current Plan</a>
             </div>
 
             <div class="glass-panel rounded-3xl p-8 flex flex-col items-start text-left border-royal-primary relative overflow-hidden transform hover:-translate-y-2 transition duration-300 shadow-[0_0_40px_rgba(124,58,237,0.2)]">
                 <div class="absolute top-4 right-4 bg-royal-accent text-royal-dark text-[10px] font-bold px-2 py-1 rounded">MOST POPULAR</div>
-                
                 <h3 class="text-xl font-bold text-white mb-2">Viral Pass</h3>
                 <p class="text-sm text-slate-400 mb-6">For serious influencers</p>
-                
                 <div class="text-4xl font-bold text-white mb-6">
                     <span id="price-display">$7</span> 
                     <span id="price-period" class="text-sm text-slate-500 font-normal">/month</span>
                 </div>
-                
                 <ul class="space-y-4 mb-8 flex-1">
                     <li class="flex items-center gap-3 text-sm"><i class="ph-bold ph-check text-royal-accent"></i> Unlimited AI Captions</li>
                     <li class="flex items-center gap-3 text-sm"><i class="ph-bold ph-check text-royal-accent"></i> Unlimited Magic Photo Scan</li>
                     <li class="flex items-center gap-3 text-sm"><i class="ph-bold ph-check text-royal-accent"></i> AI Hashtag Strategy</li>
                 </ul>
-                
-                <a id="buy-btn" href="#" target="_blank" class="btn-premium w-full py-3 rounded-xl text-white font-bold text-sm shadow-lg shadow-royal-primary/30 hover:scale-105 transition uppercase tracking-wider flex items-center justify-center gap-2">
+                <button onclick="handleCheckout()" class="btn-premium w-full py-3 rounded-xl text-white font-bold text-sm shadow-lg shadow-royal-primary/30 hover:scale-105 transition uppercase tracking-wider flex items-center justify-center gap-2">
                     Upgrade Now <i class="ph-bold ph-lightning"></i>
-                </a>
+                </button>
             </div>
         </div>
 
@@ -100,52 +92,44 @@
     </main>
 
     <script>
-    // 1. Ambil ID User yang tadi disimpan di index.html
-    const userUid = localStorage.getItem('user_uid') || "GUEST";
+        // Fungsi untuk mengarahkan ke link checkout dengan ID User yang benar
+        function handleCheckout() {
+            const userUid = localStorage.getItem('user_uid');
+            const productId = "d1f4eabd-4cd9-4a0a-bf9e-7b140f1ac8dd"; // ID Produk Lemon Squeezy Anda
 
-    // 2. Link Lemon Squeezy (Otomatis ditambah ID User)
-    // Ganti dengan link produk test mode yang baru Anda buat tadi
-const links = {
-    monthly: `https://guidify.lemonsqueezy.com/checkout/buy/d1f4eabd-4cd9-4a0a-bf9e-7b140f1ac8dd?checkout[custom][user_id]=${userUid}`,
-    yearly:  `https://guidify.lemonsqueezy.com/checkout/buy/d1f4eabd-4cd9-4a0a-bf9e-7b140f1ac8dd?checkout[custom][user_id]=${userUid}`
-};
+            if (!userUid || userUid === "GUEST") {
+                alert("Silakan Login di halaman utama terlebih dahulu sebelum melakukan upgrade agar sistem dapat mengenali akun Anda!");
+                window.location.href = "index.html";
+                return;
+            }
 
-    // Set default ke Monthly saat halaman dibuka
-    window.onload = () => {
-        const buyBtn = document.getElementById('buy-btn');
-        if(!localStorage.getItem('user_uid')) {
-            buyBtn.onclick = () => { alert("Silakan Login di halaman utama terlebih dahulu sebelum upgrade!"); return false; };
+            // Link dinamis yang membawa ID unik user ke Lemon Squeezy
+            const checkoutUrl = `https://guidify.lemonsqueezy.com/checkout/buy/${productId}?checkout[custom][user_id]=${userUid}`;
+            window.open(checkoutUrl, '_blank');
         }
-        buyBtn.href = links.monthly;
-    };
 
-    function setBilling(plan) {
-        const btnMonthly = document.getElementById('btn-monthly');
-        const btnYearly = document.getElementById('btn-yearly');
-        const priceDisplay = document.getElementById('price-display');
-        const pricePeriod = document.getElementById('price-period');
-        const buyBtn = document.getElementById('buy-btn');
+        function setBilling(plan) {
+            const btnMonthly = document.getElementById('btn-monthly');
+            const btnYearly = document.getElementById('btn-yearly');
+            const priceDisplay = document.getElementById('price-display');
+            const pricePeriod = document.getElementById('price-period');
 
-        if(plan === 'monthly') {
-            btnMonthly.classList.add('bg-white', 'text-royal-dark', 'shadow-lg');
-            btnMonthly.classList.remove('text-slate-400');
-            btnYearly.classList.remove('bg-white', 'text-royal-dark', 'shadow-lg');
-            btnYearly.classList.add('text-slate-400');
-            
-            priceDisplay.innerText = "$7";
-            pricePeriod.innerText = "/month";
-            buyBtn.href = links.monthly;
-        } else {
-            btnYearly.classList.add('bg-white', 'text-royal-dark', 'shadow-lg');
-            btnYearly.classList.remove('text-slate-400');
-            btnMonthly.classList.remove('bg-white', 'text-royal-dark', 'shadow-lg');
-            btnMonthly.classList.add('text-slate-400');
-
-            priceDisplay.innerText = "$69";
-            pricePeriod.innerText = "/year";
-            buyBtn.href = links.yearly;
+            if(plan === 'monthly') {
+                btnMonthly.classList.add('bg-white', 'text-royal-dark', 'shadow-lg');
+                btnMonthly.classList.remove('text-slate-400');
+                btnYearly.classList.remove('bg-white', 'text-royal-dark', 'shadow-lg');
+                btnYearly.classList.add('text-slate-400');
+                priceDisplay.innerText = "$7";
+                pricePeriod.innerText = "/month";
+            } else {
+                btnYearly.classList.add('bg-white', 'text-royal-dark', 'shadow-lg');
+                btnYearly.classList.remove('text-slate-400');
+                btnMonthly.classList.remove('bg-white', 'text-royal-dark', 'shadow-lg');
+                btnMonthly.classList.add('text-slate-400');
+                priceDisplay.innerText = "$69";
+                pricePeriod.innerText = "/year";
+            }
         }
-    }
-</script>
+    </script>
 </body>
 </html>
