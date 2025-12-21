@@ -92,19 +92,20 @@
     </main>
 
     <script>
-        // Fungsi untuk mengarahkan ke link checkout dengan ID User yang benar
+        // Default produk adalah Monthly
+        let currentProductId = "3ef14050-6b22-469b-ab66-643c3b756182"; 
+
         function handleCheckout() {
             const userUid = localStorage.getItem('user_uid');
-            const productId = "d1f4eabd-4cd9-4a0a-bf9e-7b140f1ac8dd"; // ID Produk Lemon Squeezy Anda
 
             if (!userUid || userUid === "GUEST") {
-                alert("Silakan Login di halaman utama terlebih dahulu sebelum melakukan upgrade agar sistem dapat mengenali akun Anda!");
+                alert("Silakan Login di halaman utama terlebih dahulu sebelum melakukan upgrade!");
                 window.location.href = "index.html";
                 return;
             }
 
-            // Link dinamis yang membawa ID unik user ke Lemon Squeezy
-            const checkoutUrl = `https://guidify.lemonsqueezy.com/checkout/buy/${productId}?checkout[custom][user_id]=${userUid}`;
+            // Membuka link checkout sesuai produk yang dipilih (Live Mode)
+            const checkoutUrl = `https://guidify.lemonsqueezy.com/checkout/buy/${currentProductId}?checkout[custom][user_id]=${userUid}`;
             window.open(checkoutUrl, '_blank');
         }
 
@@ -115,6 +116,7 @@
             const pricePeriod = document.getElementById('price-period');
 
             if(plan === 'monthly') {
+                currentProductId = "3ef14050-6b22-469b-ab66-643c3b756182"; // ID Bulanan
                 btnMonthly.classList.add('bg-white', 'text-royal-dark', 'shadow-lg');
                 btnMonthly.classList.remove('text-slate-400');
                 btnYearly.classList.remove('bg-white', 'text-royal-dark', 'shadow-lg');
@@ -122,6 +124,7 @@
                 priceDisplay.innerText = "$7";
                 pricePeriod.innerText = "/month";
             } else {
+                currentProductId = "166aadbe-ccf2-40c5-a07c-42b3c64f1951"; // ID Tahunan
                 btnYearly.classList.add('bg-white', 'text-royal-dark', 'shadow-lg');
                 btnYearly.classList.remove('text-slate-400');
                 btnMonthly.classList.remove('bg-white', 'text-royal-dark', 'shadow-lg');
